@@ -27,9 +27,6 @@ class Model(param.Parameterized):
     """
     projection = param.ClassSelector(default=Projection(), class_=Projection)
 
-    # tile_url = param.String(default='http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png',
-    #                         doc="URL for the tile source", precedence=-1)
-
     wmts = param.ClassSelector(default=WMTS(), class_=WMTS)
 
     extent = param.NumericTuple(default=(-180, -85, 180, 85), doc="""
@@ -89,8 +86,6 @@ class Model(param.Parameterized):
         # set plot options for tables
         self.table_opts = dict(width=self.table_width, height=self.table_height)
 
-        # self.tiles = WMTS(self.tile_url, extents=self.extent,
-        #                   crs=ccrs.PlateCarree()).opts(plot=self.plot_opts)
         # if polys are not given, set as empty list
         polys = [] if polys is None else polys
         # if points are not give, set as empty list
