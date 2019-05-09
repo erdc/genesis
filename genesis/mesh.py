@@ -19,8 +19,6 @@ log = logging.getLogger('genesis')
 
 class Simulation(param.Parameterized):
     default = param.Boolean(default=True, precedence=-1)
-
-    # result = param.Array(default=np.array(()))
     time = param.ObjectSelector(default=-2, objects=list([-2, -4]))
     result_label = param.ObjectSelector(default='foo', objects=list(['foo']))
 
@@ -76,8 +74,6 @@ class Simulation(param.Parameterized):
             # if model[var].dims == ('times', 'nodes_ids'):
             if 'times' in self.xarr[var].dims and 'nodes_ids' in self.xarr[var].dims:
                 labels.append(var)
-            # elif 'init_time' in model[var].dims and 'nodes_ids' in model[var].dims:
-            #     labels.append(var) ## todo temporarily accept hotstart data as results
 
         if not labels:
             log.error('No results were found in dataset.')
