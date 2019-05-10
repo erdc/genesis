@@ -1,6 +1,8 @@
 import param
 import cartopy.crs as ccrs
 import geoviews as gv
+import geoviews.tile_sources as gvts
+import panel as pn
 
 
 class Projection(param.Parameterized):
@@ -94,5 +96,21 @@ class WMTS(param.Parameterized):
 
     def view(self):
         return gv.DynamicMap(self.element)
+
+
+class GVTS(param.Parameterized):
+
+    source = param.ObjectSelector(default=list(gvts.tile_sources.keys())[0], objects=list(gvts.tile_sources.keys()),
+                                  label='Web Map Tile Services')
+
+    def widget(self):
+        return pn.panel(self.param, parameters=['source'])
+
+    @param.depends('source')
+    def view(self):
+        return gvts.tile_sources[self.source]
+
+    def panel(self):
+        return pn.Column(self.widget, self.view)
 
 
