@@ -104,7 +104,7 @@ class GVTS(param.Parameterized):
                                   label='Web Map Tile Services')
 
     def widget(self):
-        return pn.panel(self.param, parameters=['source'])
+        return pn.panel(self.param, parameters=['source'], show_name=False)
 
     @param.depends('source')
     def view(self):
