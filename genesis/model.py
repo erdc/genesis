@@ -4,7 +4,7 @@ import logging
 import panel as pn
 import holoviews as hv
 import geoviews as gv
-from .util import Projection, WMTS
+from .util import Projection, GVTS
 from holoviews import Path, Table
 from holoviews.plotting.links import DataLink
 from holoviews.streams import PolyDraw, PolyEdit, PointDraw
@@ -27,7 +27,7 @@ class Model(param.Parameterized):
     """
     projection = param.ClassSelector(default=Projection(), class_=Projection)
 
-    wmts = param.ClassSelector(default=WMTS(), class_=WMTS)
+    wmts = param.ClassSelector(default=GVTS(), class_=GVTS)
 
     extent = param.NumericTuple(default=(-180, -85, 180, 85), doc="""
              Initial extent if no data is provided.""", precedence=-1)
