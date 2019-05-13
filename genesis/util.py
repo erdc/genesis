@@ -99,18 +99,12 @@ class WMTS(param.Parameterized):
 
 
 class GVTS(param.Parameterized):
-
-    source = param.ObjectSelector(default=list(gvts.tile_sources.keys())[0], objects=list(gvts.tile_sources.keys()),
-                                  label='Web Map Tile Services')
-
-    def widget(self):
-        return pn.panel(self.param, parameters=['source'], show_name=False)
+    source = param.Selector(objects=gvts.tile_sources, label='Web Map Tile Services')
 
     @param.depends('source')
     def view(self):
-        return gvts.tile_sources[self.source]
+        return self.source
 
     def panel(self):
-        return pn.Column(self.widget, self.view)
-
-
+        return pn.Column(pn.panel(self.param, expand_button=False, show_name=False),
+                         self.view)
