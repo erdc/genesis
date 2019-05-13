@@ -108,3 +108,21 @@ class GVTS(param.Parameterized):
     def panel(self):
         return pn.Column(pn.panel(self.param, expand_button=False, show_name=False),
                          self.view)
+
+
+class StatusBar(param.Parameterized):
+    status = param.String(default='', label='', precedence=1)
+
+    def set_msg(self, message):
+        self.status = message
+
+    def busy(self):
+        self.status = 'Busy ... '
+
+    def clear(self):
+        self.status = ''
+
+    @param.depends('status', watch=True)
+    def panel(self):
+        return pn.panel(self.param, parameters=['status'], show_name=False,
+                        height=30, sizing_mode='stretch_width')
