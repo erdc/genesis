@@ -141,4 +141,4 @@ class Unstruct2D(Mesh):
 
         bathymetry = self.view_bathy()
 
-        return elements * bathymetry
+        return bathymetry * elements
