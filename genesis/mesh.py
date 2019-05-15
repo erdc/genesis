@@ -8,7 +8,7 @@ import logging
 import param
 import holoviews as hv
 import geoviews as gv
-from holoviews.operation.datashader import datashade
+from holoviews.operation.datashader import datashade, rasterize
 import datashader as ds
 
 from .util import Projection
@@ -128,10 +128,10 @@ class Unstruct2D(Mesh):
         else:
             return hv.Curve([])
 
-    def view_bathy(self, opts=dict()):
+    def view_bathy(self):
         """ Method to display the mesh as continuous color contours"""
         if self.bathymetry_toggle:
-            return datashade(self.tri_mesh.apply.opts(**opts), aggregator=ds.mean('z'), precompute=True)
+            return rasterize(self.tri_mesh, aggregator=ds.mean('z'), precompute=True)
         else:
             return hv.Curve([])
 
