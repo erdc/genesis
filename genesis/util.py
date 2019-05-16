@@ -3,6 +3,7 @@ import cartopy.crs as ccrs
 import geoviews as gv
 import geoviews.tile_sources as gvts
 import panel as pn
+import warnings
 
 
 class Projection(param.Parameterized):
@@ -66,7 +67,7 @@ class Projection(param.Parameterized):
 
 
 class WMTS(param.Parameterized):
-
+    """ this class is deprecated and will be removed in a future release """
     # Tile servers
     misc_servers = {'OpenStreetMap': 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png',
                     'Basemaps CartoCDN':
@@ -95,6 +96,8 @@ class WMTS(param.Parameterized):
         return gv.WMTS(self.tile_server)
 
     def view(self):
+        warnings.warn('WMTS class is deprecated and will be removed in a future release.')
+
         return gv.DynamicMap(self.element)
 
 
@@ -108,21 +111,3 @@ class GVTS(param.Parameterized):
     def panel(self):
         return pn.Column(pn.panel(self.param, expand_button=False, show_name=False),
                          self.view)
-
-
-class StatusBar(param.Parameterized):
-    status = param.String(default='', label='', precedence=1)
-
-    def set_msg(self, message):
-        self.status = message
-
-    def busy(self):
-        self.status = 'Busy ... '
-
-    def clear(self):
-        self.status = ''
-
-    @param.depends('status', watch=True)
-    def panel(self):
-        return pn.panel(self.param, parameters=['status'], show_name=False,
-                        height=30, sizing_mode='stretch_width')
