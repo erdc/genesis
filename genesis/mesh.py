@@ -17,6 +17,62 @@ from .util import Projection
 log = logging.getLogger('genesis')
 
 
+class Mesh(param.Parameterized):
+    name = param.String(
+        default='default_mesh',
+        doc='Name of the mesh.',
+    )
+    projection = param.ClassSelector(default=Projection(), class_=Projection)
+
+    tris = param.DataFrame(default=pd.DataFrame())
+    verts = param.DataFrame(default=pd.DataFrame())
+
+    mesh_points = param.ClassSelector(default=gv.Points([]), class_=gv.Points)
+
+    def __init__(self, crs, **params):
+        super(Mesh, self).__init__(**params)
+        self.projection.set_crs(crs)
+
+    def read(self):
+        raise ChildProcessError('read method not set')
+
+    def write(self):
+        raise ChildProcessError('write method not set')
+
+
+class Unstruct2D(Mesh):
+    tri_mesh = param.ClassSelector(default=hv.TriMesh(data=()), class_=hv.TriMesh)
+
+    elements_toggle = param.Boolean(default=True, label='Elements', precedence=1)
+
+    bathymetry_toggle = param.Boolean(default=False, label='Elevation', precedence=2)
+
+    def __init__(self, **params):
+        super(Unstruct2D, self).__init__(**params)
+
+    def view_elements(self, agg='any', line_color='black', cmap='black'):
+        """ Method to display the mesh as wireframe elements"""
+        if self.elements_toggle:
+            return datashade(self.tri_mesh.edgepaths.opts(line_color=line_color), aggregator=agg, precompute=True, cmap=cmap)
+        else:
+            return hv.Curve([])
+
+    def view_bathy(self):
+        """ Method to display the mesh as continuous color contours"""
+        if self.bathymetry_toggle:
+            return rasterize(self.tri_mesh, aggregator=ds.mean('z'), precompute=True)
+        else:
+            return hv.Curve([])
+
+    def view_mesh(self, agg='any', line_color='black', cmap='black'):
+
+        elements = self.view_elements(agg=agg, line_color=line_color, cmap=cmap)
+
+        bathymetry = self.view_bathy()
+
+        return bathymetry * elements
+
+
 class Simulation(param.Parameterized):
     default = param.Boolean(default=True, precedence=-1)
     time = param.ObjectSelector(default=-2, objects=list([-2, -4]))
@@ -29,6 +85,15 @@ class Simulation(param.Parameterized):
     def __init__(self, **params):
         super(Simulation, self).__init__(**params)
         self.xarr = xr.DataArray(data=())
+
+    def read(self, *args,  **kwargs):
+        raise ChildProcessError('read method not set')
+
+    def write(self, *args,  **kwargs):
+        raise ChildProcessError('write method not set')
+
+    def solve(self, *args,  **kwargs):
+        raise ChildProcessError('solve method not set')
 
     def set_result(self, model):
         self.default = False
@@ -90,55 +155,3 @@ class Simulation(param.Parameterized):
         self.param.time.objects = list(self.xarr.times.data)
         # set the default time
         self.time = self.xarr.times.data[0]
-
-
-class Mesh(param.Parameterized):
-    projection = param.ClassSelector(default=Projection(), class_=Projection)
-
-    tris = param.DataFrame(default=pd.DataFrame())
-    verts = param.DataFrame(default=pd.DataFrame())
-
-    mesh_points = param.ClassSelector(default=gv.Points([]), class_=gv.Points)
-
-    def __init__(self, crs, **params):
-        super(Mesh, self).__init__(**params)
-        self.projection.set_crs(crs)
-
-    def read(self):
-        raise ChildProcessError('read method not set')
-
-    def write(self):
-        raise ChildProcessError('write method not set')
-
-
-class Unstruct2D(Mesh):
-    tri_mesh = param.ClassSelector(default=hv.TriMesh(data=()), class_=hv.TriMesh)
-
-    elements_toggle = param.Boolean(default=True, label='Elements', precedence=1)
-
-    bathymetry_toggle = param.Boolean(default=False, label='Elevation', precedence=2)
-
-    def __init__(self, **params):
-        super(Unstruct2D, self).__init__(**params)
-
-    def view_elements(self, agg='any', line_color='black', cmap='black'):
-        """ Method to display the mesh as wireframe elements"""
-        if self.elements_toggle:
-            return datashade(self.tri_mesh.edgepaths.opts(line_color=line_color), aggregator=agg, precompute=True, cmap=cmap)
-        else:
-            return hv.Curve([])
-
-    def view_bathy(self):
-        """ Method to display the mesh as continuous color contours"""
-        if self.bathymetry_toggle:
-            return rasterize(self.tri_mesh, aggregator=ds.mean('z'), precompute=True)
-        else:
-            return hv.Curve([])
-
-    def view_mesh(self, agg='any', line_color='black', cmap='black'):
-
-        elements = self.view_elements(agg=agg, line_color=line_color, cmap=cmap)
-
-        bathymetry = self.view_bathy()
-
-        return bathymetry * elements
