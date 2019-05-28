@@ -17,6 +17,7 @@ from earthsim.annotators import initialize_tools
 
 from holoviews.operation.datashader import rasterize
 from geoviews import Polygons, Points, TriMesh, Path as GeoPath
+import datashader as ds
 
 
 log = logging.getLogger('genesis')
@@ -75,6 +76,12 @@ class Model(param.Parameterized):
 
     viewable_points = param.Boolean(default=True, doc='Will the points be viewable in the map',
                                     label='Points', precedence=21)
+    # line cross section options
+    resolution = param.Number(default=1000, doc="""
+                Distance between samples in meters. Used for interpolation
+                of the cross-section paths.""")
+    aggregator = param.ClassSelector(class_=ds.reductions.Reduction,
+                                     default=ds.mean(), precedence=-1)
 
     def __init__(self, polys=None, points=None, crs=None, **params):
         super(Model, self).__init__(**params)
