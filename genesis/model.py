@@ -8,13 +8,16 @@ from .util import Projection, GVTS
 from holoviews import Path, Table
 from holoviews.plotting.links import DataLink
 from holoviews.streams import PolyDraw, PolyEdit, PointDraw
-from geoviews import Polygons, Points
 import cartopy.crs as ccrs
 
 
 from earthsim.models.custom_tools import CheckpointTool, RestoreTool, ClearTool
 from earthsim.links import VertexTableLink, PointTableLink
 from earthsim.annotators import initialize_tools
+
+from holoviews.operation.datashader import rasterize
+from geoviews import Polygons, Points, TriMesh, Path as GeoPath
+import datashader as ds
 
 
 log = logging.getLogger('genesis')
@@ -73,6 +76,12 @@ class Model(param.Parameterized):
 
     viewable_points = param.Boolean(default=True, doc='Will the points be viewable in the map',
                                     label='Points', precedence=21)
+    # line cross section options
+    resolution = param.Number(default=1000, doc="""
+                Distance between samples in meters. Used for interpolation
+                of the cross-section paths.""")
+    aggregator = param.ClassSelector(class_=ds.reductions.Reduction,
+                                     default=ds.mean(), precedence=-1)
 
     def __init__(self, polys=None, points=None, crs=None, **params):
         super(Model, self).__init__(**params)
@@ -204,6 +213,84 @@ class Model(param.Parameterized):
             #                                                                           style=self.table_style)
             # # link polys data to the polygon vertex table
             # self.vertex_link = VertexTableLink(self.polys, self.vertex_table)
+
+    # line cross section
+    def _gen_samples(self, geom):
+        """
+        Interpolates a LineString geometry to the defined
+        resolution. Returning the x- and y-coordinates along
+        with the distance along the path.
+        """
+        xs, ys, distance = [], [], []
+        dist = geom.length
+        for d in np.linspace(0, dist, int(dist / self.resolution)):
+            point = geom.interpolate(d)
+            xs.append(point.x)
+            ys.append(point.y)
+            distance.append(d)
+        return xs, ys, distance
+
+    # line cross section
+    def _sample(self, obj, data):
+        """
+        Rasterizes the supplied object in the current region
+        and samples it with the drawn paths returning an
+        NdOverlay of Curves.
+
+        Note: Because the function returns an NdOverlay containing
+        a variable number of elements batching must be enabled and
+        the legend_limit must be set to 0.
+        """
+        if self.poly_stream.data is None:
+            path = self.polys
+        else:
+            path = self.poly_stream.element
+        if isinstance(obj, TriMesh):
+            vdim = obj.nodes.vdims[0]
+        else:
+            vdim = obj.vdims[0]
+        if len(path) > 2:
+            x_range = path.range(0)
+            y_range = path.range(1)
+        else:
+            return hv.NdOverlay({0: hv.Curve([], 'Distance', vdim)})
+
+        (x0, x1), (y0, y1) = x_range, y_range
+        width, height = (max([min([(x1 - x0) / self.resolution, 500]), 10]),
+                         max([min([(y1 - y0) / self.resolution, 500]), 10]))
+        raster = rasterize(obj, x_range=x_range, y_range=y_range,
+                           aggregator=self.aggregator, width=int(width),
+                           height=int(height), dynamic=False)
+        x, y = raster.kdims
+        sections = []
+        for g in path.geom():
+            xs, ys, distance = self._gen_samples(g)
+            indexes = {x.name: xs, y.name: ys}
+            points = raster.data.sel_points(method='nearest', **indexes).to_dataframe()
+            points['Distance'] = distance
+            sections.append(hv.Curve(points, 'Distance', vdims=[vdim, x, y]))
+        return hv.NdOverlay(dict(enumerate(sections)))
+
+    # line cross section
+    def _pos_indicator(self, obj, x):
+        """
+        Returns an NdOverlay of Points indicating the current
+        mouse position along the cross-sections.
+
+        Note: Because the function returns an NdOverlay containing
+        a variable number of elements batching must be enabled and
+        the legend_limit must be set to 0.
+        """
+        points = []
+        elements = obj or []
+        for el in elements:
+            if len(el) < 1:
+                continue
+            p = Points(el[x], ['x', 'y'], crs=ccrs.GOOGLE_MERCATOR)
+            points.append(p)
+        if not points:
+            return hv.NdOverlay({0: Points([], ['x', 'y'])})
+        return hv.NdOverlay(enumerate(points))
 
     @param.depends('viewable_points', 'viewable_polys', 'wmts')
     def map_view(self, update_points=True, update_polys=True):
