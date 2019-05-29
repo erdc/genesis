@@ -24,8 +24,8 @@ class Mesh(param.Parameterized):
     )
     projection = param.ClassSelector(default=Projection(), class_=Projection)
 
-    tris = param.DataFrame(default=pd.DataFrame())
-    verts = param.DataFrame(default=pd.DataFrame())
+    tris = param.DataFrame(default=pd.DataFrame(data=[], columns=['v0', 'v1', 'v2']))
+    verts = param.DataFrame(default=pd.DataFrame(data=[], columns=['x', 'y', 'z']))
 
     mesh_points = param.ClassSelector(default=gv.Points([]), class_=gv.Points)
 
@@ -38,6 +38,12 @@ class Mesh(param.Parameterized):
 
     def write(self):
         raise ChildProcessError('write method not set')
+
+    def validate(self):
+        if list(self.tris.columns) != ['v0', 'v1', 'v2']:
+            raise RuntimeError('tris columns not set properly')
+        if list(self.verts.columns) != ['x', 'y', 'z']:
+            raise RuntimeError('verts columns not set properly')
 
 
 class Unstruct2D(Mesh):
@@ -75,8 +81,8 @@ class Unstruct2D(Mesh):
 
 class Simulation(param.Parameterized):
     default = param.Boolean(default=True, precedence=-1)
-    time = param.ObjectSelector(default=-2, objects=list([-2, -4]))
-    result_label = param.ObjectSelector(default='foo', objects=list(['foo']))
+    time = param.ObjectSelector()
+    result_label = param.ObjectSelector()
 
     id = param.ClassSelector(default=uuid.uuid4(), class_=uuid.UUID, precedence=-1)
 
