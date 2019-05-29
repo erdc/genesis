@@ -29,6 +29,8 @@ class Mesh(param.Parameterized):
 
     mesh_points = param.ClassSelector(default=gv.Points([]), class_=gv.Points)
 
+    units = param.ObjectSelector(default='meters', objects=['meters', 'feet', 'none'])
+
     def __init__(self, crs, **params):
         super(Mesh, self).__init__(**params)
         self.projection.set_crs(crs)
