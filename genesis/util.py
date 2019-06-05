@@ -106,7 +106,7 @@ class GVTS(param.Parameterized):
 
     @param.depends('source')
     def view(self):
-        return self.source
+        return self.source.opts(active_tools=['pan', 'wheel_zoom'])
 
     def panel(self):
         return pn.Column(pn.panel(self.param, expand_button=False, show_name=False),
