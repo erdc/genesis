@@ -24,11 +24,6 @@ class Mesh(param.Parameterized):
     )
     projection = param.ClassSelector(default=Projection(), class_=Projection)
 
-    tris = param.DataFrame(default=pd.DataFrame(data=[], columns=['v0', 'v1', 'v2']))
-    verts = param.DataFrame(default=pd.DataFrame(data=[], columns=['x', 'y', 'z']))
-
-    mesh_points = param.ClassSelector(default=gv.Points([]), class_=gv.Points)
-
     units = param.ObjectSelector(default='meters', objects=['meters', 'feet', 'none'])
 
     def __init__(self, crs, **params):
@@ -41,33 +36,55 @@ class Mesh(param.Parameterized):
     def write(self):
         raise ChildProcessError('write method not set')
 
+
+class Unstructured(Mesh):
+    tris = param.DataFrame(default=pd.DataFrame(data=[], columns=['v0', 'v1', 'v2']))
+    verts = param.DataFrame(default=pd.DataFrame(data=[], columns=['x', 'y', 'z']))
+
+    mesh_points = param.ClassSelector(default=gv.Points([]), class_=gv.Points)
+
+    elements_toggle = param.Boolean(default=True, label='Elements', precedence=1)
+
+    elevation_toggle = param.Boolean(default=False, label='Elevation', precedence=2)
+
+    def __init__(self, **params):
+        super(Unstructured, self).__init__(**params)
+
     def validate(self):
         if list(self.tris.columns) != ['v0', 'v1', 'v2']:
             raise RuntimeError('tris columns not set properly')
         if list(self.verts.columns) != ['x', 'y', 'z']:
             raise RuntimeError('verts columns not set properly')
 
+    def view_elements(self):
+        """ Method to display the mesh as wireframe elements"""
+        raise ChildProcessError('view elements method not set')
 
-class Unstruct2D(Mesh):
+    def view_elevation(self):
+        """ Method to display the mesh as continuous color contours"""
+        raise ChildProcessError('view elevation method not set')
+
+    def view_mesh(self):
+        raise ChildProcessError('view mesh method not set')
+
+
+class Unstructured2D(Unstructured):
     tri_mesh = param.ClassSelector(default=hv.TriMesh(data=()), class_=hv.TriMesh)
 
-    elements_toggle = param.Boolean(default=True, label='Elements', precedence=1)
-
-    bathymetry_toggle = param.Boolean(default=False, label='Elevation', precedence=2)
-
     def __init__(self, **params):
-        super(Unstruct2D, self).__init__(**params)
+        super(Unstructured2D, self).__init__(**params)
 
     def view_elements(self, agg='any', line_color='black', cmap='black'):
         """ Method to display the mesh as wireframe elements"""
         if self.elements_toggle:
-            return datashade(self.tri_mesh.edgepaths.opts(line_color=line_color), aggregator=agg, precompute=True, cmap=cmap)
+            return datashade(self.tri_mesh.edgepaths.opts(line_color=line_color), aggregator=agg,
+                             precompute=True, cmap=cmap)
         else:
             return hv.Curve([])
 
-    def view_bathy(self):
+    def view_elevation(self):
         """ Method to display the mesh as continuous color contours"""
-        if self.bathymetry_toggle:
+        if self.elevation_toggle:
             return rasterize(self.tri_mesh, aggregator=ds.mean('z'), precompute=True)
         else:
             return hv.Curve([])
@@ -76,9 +93,9 @@ class Unstruct2D(Mesh):
 
         elements = self.view_elements(agg=agg, line_color=line_color, cmap=cmap)
 
-        bathymetry = self.view_bathy()
+        elevation = self.view_elevation()
 
-        return bathymetry * elements
+        return elevation * elements
 
 
 class Simulation(param.Parameterized):
