@@ -18,6 +18,6 @@ setup(
         'colorcet',
         'jupyter'
     ],
-    description="GeneSIs is a suite of universal base classes for numerical modeling",
+    description="GeneSIs (Generic Simulation Interfaces) is a suite of universal base classes for numerical modeling",
     url="https://github.com/erdc/genesis",
 )
