@@ -1,0 +1,22 @@
+name: genesis
+
+channels:
+    - pyviz/label/dev
+    - erdc
+    - conda-forge
+    - defaults
+
+dependencies:
+    - python=3.6
+    - param
+    - panel
+    - holoviews
+    - geoviews
+    - cartopy
+    - earthsim
+    - numpy
+    - pandas
+    - xarray
+    - datashader
+    - colorcet
+    - jupyter
