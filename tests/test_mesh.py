@@ -1,5 +1,7 @@
 import unittest
 import cartopy.crs as ccrs
+import holoviews.plotting.bokeh
+import geoviews.plotting.bokeh
 from genesis.mesh import Mesh, Unstructured, Unstructured2D
 
 
