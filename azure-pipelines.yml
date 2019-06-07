@@ -1,4 +1,5 @@
 jobs:
+
 - job:
   displayName: ubuntu-16.04
   pool:
@@ -66,4 +67,5 @@ jobs:
       call activate myEnvironment
       pytest
     displayName: Run pytest
+
 
