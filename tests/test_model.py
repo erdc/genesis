@@ -1,5 +1,7 @@
 import unittest
 from genesis.model import Model
+import holoviews.plotting.bokeh
+import geoviews.plotting.bokeh
 
 
 class TestMain(unittest.TestCase):
