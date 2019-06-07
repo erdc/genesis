@@ -1,24 +1,26 @@
 jobs:
-#- job:
-#  displayName: ubuntu-16.04
-#  pool:
-#    vmImage: 'ubuntu-16.04'
-#  strategy:
-#    matrix:
-#      Python36:
-#        python.version: '3.6'
-#  steps:
-#  - bash: echo "##vso[task.prependpath]$CONDA/bin"
-#    displayName: Add conda to PATH
-#
-#  - bash: |
-#      conda env create -n myEnvironment -f environment.yml
-#    displayName: Install Anaconda packages
-#  - bash: |
-#      source activate myEnvironment
-#      pip install pytest pytest-azurepipelines
-#      pytest
-#    displayName: pytest
+- job:
+  displayName: ubuntu-16.04
+  pool:
+    vmImage: 'ubuntu-16.04'
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+  steps:
+  - bash: echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: Add conda to PATH
+
+  - bash: |
+      conda env create -n myEnvironment -f environment.yml
+      source activate myEnvironment
+      pip install pytest pytest-azurepipelines
+      conda list
+    displayName: Create conda environment
+  - bash: |
+      source activate myEnvironment
+      pytest
+    displayName: Run pytest
 
 - job:
   displayName: macOS-10.13
@@ -37,31 +39,31 @@ jobs:
       source activate myEnvironment
       pip install pytest pytest-azurepipelines
       conda list
-    displayName: Install Anaconda packages
+    displayName: Create conda environment
   - bash: |
       source activate myEnvironment
       pytest
-    displayName: pytest
+    displayName: Run pytest
 
-#- job:
-#  displayName: vs2017-win2016
-#  pool:
-#    vmImage: 'vs2017-win2016'
-#  strategy:
-#    matrix:
-#      Python36:
-#        python.version: '3.6'
-#  steps:
-#  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
-#    displayName: Add conda to PATH
-#  - script: |
-#      conda env create -n myEnvironment -f environment.yml
-#      call activate myEnvironment
-#      conda install --yes --quiet --name myEnvironment python=%PYTHON_VERSION% numpy
-#    displayName: Install Anaconda packages
-#  - script: |
-#      call activate myEnvironment
-#      pip install pytest pytest-azurepipelines
-#      pytest
-#    displayName: pytest
+- job:
+  displayName: vs2017-win2016
+  pool:
+    vmImage: 'vs2017-win2016'
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+  steps:
+  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+    displayName: Add conda to PATH
+  - script: |
+      conda env create -n myEnvironment -f environment.yml
+      call activate myEnvironment
+      pip install pytest pytest-azurepipelines
+      conda list
+    displayName: Create conda environment
+  - script: |
+      call activate myEnvironment
+      pytest
+    displayName: Run pytest
 
