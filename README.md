@@ -1,5 +1,6 @@
-# generic-simulation-interface
-A base template for numerical simulations APIs
+# GeneSIs - Generic Simulation Interfaces  
+A base template for numerical simulations APIs  
+[![Build Status](https://dev.azure.com/kimberlycpevey/ERDC/_apis/build/status/erdc.genesis?branchName=master)](https://dev.azure.com/kimberlycpevey/ERDC/_build/latest?definitionId=6&branchName=master)  
 
 ### The structure
 * Model
