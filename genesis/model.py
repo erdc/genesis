@@ -12,6 +12,8 @@ from geoviews import Polygons, Points, TriMesh, Path as GeoPath
 import datashader as ds
 from earthsim.annotators import PolyAndPointAnnotator
 
+import holoviews.plotting.bokeh
+import geoviews.plotting.bokeh
 
 log = logging.getLogger('genesis')
 
