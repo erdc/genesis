@@ -30,10 +30,10 @@ class Mesh(param.Parameterized):
         super(Mesh, self).__init__(**params)
         self.projection.set_crs(crs)
 
-    def read(self):
+    def read(self, *args, **kwargs):
         raise ChildProcessError('read method not set')
 
-    def write(self):
+    def write(self, *args, **kwargs):
         raise ChildProcessError('write method not set')
 
 
