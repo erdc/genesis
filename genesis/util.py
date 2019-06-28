@@ -9,7 +9,7 @@ import warnings
 class Projection(param.Parameterized):
     crs_label = param.ObjectSelector(default='UTM', objects=['Geographic', 'Mercator', 'UTM'], precedence=1)
     UTM_zone_hemi = param.ObjectSelector(default='North', objects=['North', 'South'], precedence=2)
-    UTM_zone_num = param.Integer(52, bounds=(1, 60), precedence=3)
+    UTM_zone_num = param.Integer(12, bounds=(1, 60), precedence=3)
 
     @param.depends('crs_label', watch=True)
     def _watch_utm_projection(self):
