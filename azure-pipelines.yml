@@ -1,5 +1,14 @@
-jobs:
+trigger:
+  branches:
+    include:
+    - 'master'
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - '*'
 
+jobs:
 - job:
   displayName: ubuntu-16.04
   pool:
