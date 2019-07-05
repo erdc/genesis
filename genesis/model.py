@@ -12,6 +12,8 @@ from geoviews import Polygons, Points, TriMesh, Path as GeoPath
 import datashader as ds
 from earthsim.annotators import PolyAndPointAnnotator
 
+import holoviews.plotting.bokeh
+import geoviews.plotting.bokeh
 
 log = logging.getLogger('genesis')
 
@@ -121,19 +123,20 @@ class Model(PolyAndPointAnnotator):
             return hv.NdOverlay({0: Points([], ['x', 'y'])})
         return hv.NdOverlay(enumerate(points))
 
-    @param.depends('wmts')
     def map_view(self):
 
         if self.viewable_points:
-            view_points = self.points.options(tools=['hover'], clone=False)
+            view_points = self.points.options(tools=['hover'], clone=False,
+                                              height=self.height, width=self.width)
         else:
-            view_points = hv.Points([])  # todo use empty layouts when they become available
+            view_points = hv.Curve([])  # todo use empty layouts when they become available
         if self.viewable_polys:
-            view_polys = self.polys.options(clone=False, line_width=5)
+            view_polys = self.polys.options(clone=False, line_width=5,
+                                            height=self.height, width=self.width)
         else:
-            view_polys = hv.Points([])  # todo use empty layouts when they become available
+            view_polys = hv.Curve([])  # todo use empty layouts when they become available
 
-        return self.wmts.view() * view_polys * view_points
+        return hv.DynamicMap(self.wmts.view) * view_polys * view_points
 
     def table_view(self):
         return pn.Tabs(('Polygons', self.poly_table), ('Vertices', self.vertex_table),
@@ -142,17 +145,18 @@ class Model(PolyAndPointAnnotator):
     def panel(self):
         return pn.Row(self.map_view(), self.table_view())
 
-    @param.depends('wmts')
     def view(self):
         if self.viewable_points:
-            view_points = self.points.opts(tools=['hover'], clone=False, active_tools=['pan', 'wheel_zoom'])
+            view_points = self.points.opts(tools=['hover'], clone=False, active_tools=['pan', 'wheel_zoom'],
+                                           height=self.height, width=self.width)
         else:
-            view_points = hv.Points([])
+            view_points = hv.Curve([])
         if self.viewable_polys:
-            view_polys = self.polys.opts(clone=False, line_width=5, active_tools=['pan', 'wheel_zoom'])
+            view_polys = self.polys.opts(clone=False, line_width=5, active_tools=['pan', 'wheel_zoom'],
+                                         height=self.height, width=self.width)
         else:
-            view_polys = hv.Points([])
-        return(self.wmts.view() * view_polys * view_points +
+            view_polys = hv.Curve([])
+        return(hv.DynamicMap(self.wmts.view) * view_polys * view_points +
                self.poly_table + self.point_table + self.vertex_table).cols(1)
 
     @param.output(path=hv.Path)

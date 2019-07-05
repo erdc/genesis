@@ -23,5 +23,6 @@ class StatusBar(param.Parameterized):
 
     @param.depends('status', watch=True)
     def panel(self):
-        return pn.panel(self.param, parameters=['status'], show_name=False,
-                        height=30, sizing_mode='stretch_width')
+        return pn.panel(
+            self.param, parameters=['status'], widgets={'status': pn.widgets.TextInput(sizing_mode='stretch_width')},
+            show_name=False)
