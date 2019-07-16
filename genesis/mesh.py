@@ -10,6 +10,7 @@ import holoviews as hv
 import geoviews as gv
 from holoviews.operation.datashader import datashade, rasterize
 import datashader as ds
+from holoviews import opts
 
 from .util import Projection
 
@@ -26,9 +27,8 @@ class Mesh(param.Parameterized):
 
     units = param.ObjectSelector(default='meters', objects=['meters', 'feet', 'none'])
 
-    def __init__(self, crs, **params):
+    def __init__(self, **params):
         super(Mesh, self).__init__(**params)
-        self.projection.set_crs(crs)
 
     def read(self, *args, **kwargs):
         raise ChildProcessError('read method not set')
@@ -77,8 +77,9 @@ class Unstructured2D(Unstructured):
     def view_elements(self, agg='any', line_color='black', cmap='black'):
         """ Method to display the mesh as wireframe elements"""
         if self.elements_toggle:
-            return datashade(self.tri_mesh.edgepaths.opts(line_color=line_color), aggregator=agg,
-                             precompute=True, cmap=cmap)
+            # return datashade(self.tri_mesh.edgepaths.opts(line_color=line_color), aggregator=agg,
+            #                  precompute=True, cmap=cmap)
+            return datashade(self.tri_mesh.edgepaths.opts(opts.TriMesh(edge_cmap='yellow', edge_color='yellow')))
         else:
             return hv.Curve([])
 
