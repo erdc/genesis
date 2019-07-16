@@ -4,7 +4,7 @@ import numpy as np
 
 import panel as pn
 import holoviews as hv
-from .util import Projection, GVTS
+from .util import GVTS
 import cartopy.crs as ccrs
 
 from holoviews.operation.datashader import rasterize
@@ -23,8 +23,6 @@ class Model(PolyAndPointAnnotator):
     Allows drawing and annotating Points and Polygons using a bokeh
     DataTable.
     """
-    projection = param.ClassSelector(default=Projection(), class_=Projection)
-
     wmts = param.ClassSelector(default=GVTS(), class_=GVTS)
 
     default_value = param.Number(default=-99999, doc="default value to set for new points and polys", precedence=-1)
