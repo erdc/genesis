@@ -56,10 +56,12 @@ class Unstructured(Mesh):
         if list(self.verts.columns) != ['x', 'y', 'z']:
             raise RuntimeError('verts columns not set properly')
 
+    @param.depends('elements_toggle', watch=True)
     def view_elements(self):
         """ Method to display the mesh as wireframe elements"""
         raise ChildProcessError('view elements method not set')
 
+    @param.depends('elevation_toggle', watch=True)
     def view_elevation(self):
         """ Method to display the mesh as continuous color contours"""
         raise ChildProcessError('view elevation method not set')
